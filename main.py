@@ -12,7 +12,7 @@ class Home_w(QMainWindow):
     def __init__(self, stacked_widget):
         super(Home_w, self).__init__()
         loadUi("test.ui", self)
-        self.setFixedSize(950, 800)
+
 
         # Khi nút "Login" được nhấn, chuyển sang màn hình login
         self.login.clicked.connect(lambda: stacked_widget.setCurrentIndex(1))
@@ -33,7 +33,6 @@ class Login_w(QMainWindow):
 
     def login(self):
         un = self.user.text()
-
         pw = self.password.text()
 
 
@@ -61,7 +60,61 @@ class Login_w(QMainWindow):
 class Admin_w(QMainWindow):
     def __init__(self):
         super(Admin_w, self).__init__()
-        loadUi('admin.ui', self)
+        loadUi("admin.ui", self)
+        self.searchData.clicked.connect(self.search)
+    def search(self):
+        id = self.idSearch.text()
+        name = self.nameSearch.text()
+        db = connect.connect()
+        query = db.cursor()
+
+        sql_query = """
+                SELECT
+                    e.employee_id,
+                    e.name,
+                    e.department,
+                    a.check_in_time,
+                    a.check_out_time
+                FROM
+                    employees e
+                LEFT JOIN
+                    attendance a ON e.employee_id = a.employee_id
+            """
+
+        # Thêm điều kiện WHERE nếu id hoặc name được cung cấp
+        conditions = []
+        params = []
+
+        if id and name:
+            conditions.append("(e.employee_id = ? OR e.name = ?)")
+            params.extend([id, name])
+        elif id:
+            conditions.append("e.employee_id = ?")
+            params.append(id)
+        elif name:
+            conditions.append("e.name = ?")
+            params.append(name)
+
+        if conditions:
+            sql_query += " WHERE " + " OR ".join(conditions)
+
+        query.execute(sql_query, tuple(params))
+        rows = query.fetchall()
+        table_widget = self.findChild(QTableWidget, 'tableData')
+
+        # Đặt dữ liệu vào QTableWidget
+        table_widget.setRowCount(len(rows))
+        table_widget.setColumnCount(len(rows[0]))
+
+        for i, row in enumerate(rows):
+            for j, value in enumerate(row):
+                item = QTableWidgetItem(str(value))
+                table_widget.setItem(i, j, item)
+
+        # Đặt tiêu đề cột
+        column_headers = [column[0] for column in query.description]
+        table_widget.setHorizontalHeaderLabels(column_headers)
+
 
 
 if __name__ == "__main__":
@@ -72,13 +125,16 @@ if __name__ == "__main__":
     Home_f = Home_w(stacked_widget)
     Admin_f = Admin_w()
 
+
     stacked_widget.addWidget(Home_f)
     stacked_widget.addWidget(Login_f)
     stacked_widget.addWidget(Admin_f)
 
     stacked_widget.setCurrentIndex(0)
 
+
     stacked_widget.show()
+    print("QStackedWidget đã được hiển thị")
     app.exec()
 
 
