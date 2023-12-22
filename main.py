@@ -1,11 +1,8 @@
-from PyQt6 import QtGui,QtWidgets,QtCore,uic
+from PyQt6 import QtGui, QtWidgets, QtCore, uic
 from PyQt6.QtWidgets import *
 import sys
 from PyQt6.uic import loadUi
 import connect
-
-
-
 
 
 class Home_w(QMainWindow):
@@ -13,7 +10,7 @@ class Home_w(QMainWindow):
         super(Home_w, self).__init__()
         loadUi("test.ui", self)
 
-
+        self.setFixedSize(850, 550)
         # Khi nút "Login" được nhấn, chuyển sang màn hình login
         self.login.clicked.connect(lambda: stacked_widget.setCurrentIndex(1))
 
@@ -27,14 +24,12 @@ class Login_w(QMainWindow):
         self.backMain.clicked.connect(self.go_to_home)
 
     def go_to_home(self):
-            # Chuyển sang trang Home khi nhấn nút backmain
+        # Chuyển sang trang Home khi nhấn nút backmain
         self.stacked_widget.setCurrentIndex(0)  # 0 là index của trang Home trong stacked_widget
-
 
     def login(self):
         un = self.user.text()
         pw = self.password.text()
-
 
         # Kết nối đến cơ sở dữ liệu
         db = connect.connect()
@@ -57,11 +52,13 @@ class Login_w(QMainWindow):
         else:
             QMessageBox.warning(self, "Lỗi", "Không thể kết nối đến cơ sở dữ liệu")
 
+
 class Admin_w(QMainWindow):
     def __init__(self):
         super(Admin_w, self).__init__()
         loadUi("admin.ui", self)
         self.searchData.clicked.connect(self.search)
+
     def search(self):
         id = self.idSearch.text()
         name = self.nameSearch.text()
@@ -116,7 +113,6 @@ class Admin_w(QMainWindow):
         table_widget.setHorizontalHeaderLabels(column_headers)
 
 
-
 if __name__ == "__main__":
     app = QApplication(sys.argv)
 
@@ -125,18 +121,15 @@ if __name__ == "__main__":
     Home_f = Home_w(stacked_widget)
     Admin_f = Admin_w()
 
-
     stacked_widget.addWidget(Home_f)
     stacked_widget.addWidget(Login_f)
     stacked_widget.addWidget(Admin_f)
 
     stacked_widget.setCurrentIndex(0)
 
-
     stacked_widget.show()
     print("QStackedWidget đã được hiển thị")
     app.exec()
-
 
 # def homeUI():
 #     global ui
@@ -156,4 +149,3 @@ if __name__ == "__main__":
 # #run app
 # homeUI()
 # sys.exit(app.exec())
-
