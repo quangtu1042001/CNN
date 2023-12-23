@@ -1,46 +1,30 @@
-# import cv2
-#
-# # Sử dụng OpenCV để chụp ảnh từ webcam hoặc camera được kết nối
-# cap = cv2.VideoCapture(0)
-#
-# while True:
-#     ret, frame = cap.read()
-#     cv2.imshow('Capture', frame)
-#
-#     if cv2.waitKey(1) & 0xFF == ord('q'):
-#         cv2.imwrite('captured_image.jpg', frame)
-#         break
-#
-# cap.release()
-# cv2.destroyAllWindows()
-
-
-from keras.models import load_model
 import cv2
 import numpy as np
+from PIL import Image
+from keras import layers, models
 
-# Load mô hình đã huấn luyện
-model = load_model('model-facereg.h5')
+# Load the trained model
+model = models.load_model('model-nonesang.h5')
 
-# Đọc ảnh được chụp
-image = cv2.imread('captured_image.jpg')
+# Preprocess the test image
+test_image_path = 'soi.jpg'  # Replace with the actual path to your test image
+test_image = cv2.resize(np.array(Image.open(test_image_path)), (189, 189))
+test_image = test_image / 255.0
 
-# Resize ảnh về kích thước mong muốn (189, 189)
-image = cv2.resize(image, (189, 189))
+# Reshape the test image to match the input shape of the model
+test_image = np.reshape(test_image, (1, 189, 189, 3))
 
-# Chuẩn hóa giá trị pixel về khoảng [0, 1]
-image = image / 255.0
+# Make predictions
+predictions = model.predict(test_image)
 
-# Thêm một chiều để phản ánh batch size (1 ảnh)
-image = np.expand_dims(image, axis=0)
+# Set a threshold for confidence
+confidence_threshold = 0.7  # Adjust this threshold as needed
 
-# Dự đoán
-predictions = model.predict(image)
-
-# Chuyển đổi dự đoán thành nhãn
-if predictions[0][0] > predictions[0][1]:
-    label = 'tu'
+# Check if the highest predicted probability is below the confidence threshold
+if np.max(predictions) < confidence_threshold:
+    print("Mô hình không tự tin về dự đoán của mình.")
 else:
-    label = 'soi'
-
-print(f'Dự đoán: {label}')
+    # Assuming 'tu' corresponds to index 0 and 'soi' corresponds to index 1
+    predicted_class_index = np.argmax(predictions)
+    predicted_class = 'tu' if predicted_class_index == 0 else 'soi'
+    print(f"The model predicts: {predicted_class}")

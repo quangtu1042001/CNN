@@ -128,7 +128,7 @@ if __name__ == "__main__":
     stacked_widget.setCurrentIndex(0)
 
     stacked_widget.show()
-    print("QStackedWidget đã được hiển thị")
+    # print("QStackedWidget đã được hiển thị")
     app.exec()
 
 # def homeUI():

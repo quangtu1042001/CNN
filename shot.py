@@ -38,20 +38,20 @@ while True:
     faces = face_cascade.detectMultiScale(gray, 1.3, 5)
 
     for (x, y, w, h) in faces:
-        cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+        cv2.rectangle(frame, (x, y), (x + w , y + h + 35), (0, 255, 0), 2)
         # Lưu khuôn mặt đã phát hiện vào thư mục con
-        if sampleNum <= 300:
+        if sampleNum <= 100:
             # Lưu ảnh vào data_test/tu123
             cv2.imwrite(os.path.join(data_test_path, subfolder_name, 'peo_{}.jpg'.format(sampleNum)),
-                        frame[y:y + h, x:x + w])
+                        frame[y:y + h+ 35, x:x + w])
         else:
             # Lưu ảnh vào data_train/tu123
             cv2.imwrite(os.path.join(data_train_path, subfolder_name, 'peo_{}.jpg'.format(sampleNum)),
-                        frame[y:y + h, x:x + w])
+                        frame[y:y + h+35, x:x + w])
         sampleNum += 1
-        if sampleNum > 1000:
+        if sampleNum > 300:
             break
-    if sampleNum > 1000:
+    if sampleNum > 300:
         break
 
 cap.release()

@@ -47,39 +47,40 @@ x_train_images = x_train_images / 255.0
 x_test_images = x_test_images / 255.0
 
 # Define the model
-# model = models.Sequential([
-#     layers.Conv2D(32, (3, 3), input_shape=(189, 189, 3), activation='relu'),
-#     layers.MaxPool2D((2, 2)),
-#     layers.Dropout(0.15),
-#
-#     layers.Conv2D(64, (3, 3), activation='relu'),
-#     layers.MaxPool2D((2, 2)),
-#     layers.Dropout(0.2),
-#
-#     layers.Conv2D(128, (3, 3), activation='relu'),
-#     layers.MaxPool2D((2, 2)),
-#     layers.Dropout(0.2),
-#
-#     layers.Flatten(),
-#     layers.Dense(1024, activation='relu'),
-#     layers.Dropout(0.2),
-#     layers.Dense(512, activation='relu'),
-#     layers.Dropout(0.2),
-#     layers.Dense(256, activation='relu'),
-#     layers.Dropout(0.2),
-#     layers.Dense(2, activation='softmax'),
-# ])
-#
-# # Compile the model
-# model.compile(optimizer='adam',
-#               loss='categorical_crossentropy',
-#               metrics=['accuracy'])
-#
-# # Train the model
-# model.fit(x_train_images, x_train_labels, epochs=40, batch_size=64)
-#
-# # Save the model
-# model.save('model-facereg.h5')
+model = models.Sequential([
+    layers.Conv2D(32, (3, 3), input_shape=(189, 189, 3), activation='relu'),
+    layers.MaxPool2D((2, 2)),
+    layers.Dropout(0.15),
+
+    layers.Conv2D(64, (3, 3), activation='relu'),
+    layers.MaxPool2D((2, 2)),
+    layers.Dropout(0.2),
+
+    layers.Conv2D(128, (3, 3), activation='relu'),
+    layers.MaxPool2D((2, 2)),
+    layers.Dropout(0.2),
+
+    layers.Flatten(),
+    layers.Dense(1024, activation='relu'),
+    layers.Dropout(0.2),
+    layers.Dense(512, activation='relu'),
+    layers.Dropout(0.2),
+    layers.Dense(256, activation='relu'),
+    layers.Dropout(0.2),
+    layers.Dense(2, activation='softmax'),
+])
+
+# Compile the model
+model.compile(optimizer='adam',
+              loss='categorical_crossentropy',
+              metrics=['accuracy'])
+
+model.summary()
+# Train the model
+model.fit(x_train_images, x_train_labels, epochs=10, batch_size=64)
+
+# Save the model
+model.save('model-nonesang.h5')
 
 
 # models = models.load_model('model-facereg.h5')
