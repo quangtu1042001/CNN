@@ -6,6 +6,7 @@ from PyQt6.QtCore import Qt, QThread, pyqtSignal
 from PyQt6.QtGui import QImage, QPixmap
 import connect
 import cv2
+import os
 
 
 class Home_w(QMainWindow):
@@ -21,6 +22,7 @@ class Home_w(QMainWindow):
 
 
 
+
 class add_w(QMainWindow):
     def __init__(self, stacked_widget):
         super(add_w, self).__init__()
@@ -28,6 +30,9 @@ class add_w(QMainWindow):
         self.stacked_widget = stacked_widget
         self.addEmp.clicked.connect(self.addEmployess)
         self.showCam.clicked.connect(self.show_cam)
+        self.closeCam.clicked.connect(self.exit_cam)
+        self.backTime.clicked.connect(lambda: stacked_widget.setCurrentIndex(0))
+        self.Screenshot.clicked.connect(self.capture_screenshot)
 
     def show_cam(self):
         cam = True
@@ -36,14 +41,18 @@ class add_w(QMainWindow):
         else:
             self.vid = cv2.VideoCapture('dothi.mp4')
 
-        while True:
+        self.is_cam_running = True
+
+        while self.is_cam_running:
             ok, frame = self.vid.read()
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             if not ok:
                 break
 
             self.update(frame)
+
             if cv2.waitKey(1) & 0xFF == ord('q'):
-                break
+                self.stop_cam()  # Dừng camera khi nhấn 'q'
 
         self.vid.release()
 
@@ -51,20 +60,30 @@ class add_w(QMainWindow):
         self.setPhoto(frame)
 
     def setPhoto(self, image):
+        image = cv2.resize(image, (531,481))
         height, width, channel = image.shape
         bytesPerLine = 3 * width
         qImg = QImage(image.data, width, height, bytesPerLine, QImage.Format.Format_RGB888)
         pixmap = QPixmap.fromImage(qImg)
         self.camAdd.setPixmap(pixmap)
 
+    def exit_cam(self):
+        self.is_cam_running = False
 
+    def capture_screenshot(self):
+        idEmp = self.addId.text()
 
-
-
-
-
-
-
+        # Kiểm tra xem idEmp có giá trị hay không
+        if idEmp:
+            img_folder = 'img'
+            os.makedirs(img_folder, exist_ok=True)  # Tạo thư mục 'img' nếu chưa tồn tại
+            screenshot_name = f"{img_folder}/{idEmp}.jpg"
+            frame = self.vid.read()[1]
+            # frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            cv2.imwrite(screenshot_name, frame)
+            QMessageBox.information(self, 'Thông báo', f'Đã chụp ảnh với ID {idEmp} và lưu vào thư mục {img_folder}')
+        else:
+            QMessageBox.warning(self, 'Cảnh báo', 'Vui lòng nhập ID trước khi chụp ảnh.')
 
 
 

@@ -18,9 +18,9 @@
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>220</y>
+      <y>150</y>
       <width>211</width>
-      <height>81</height>
+      <height>41</height>
      </rect>
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -40,9 +40,9 @@
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>130</y>
+      <y>100</y>
       <width>211</width>
-      <height>81</height>
+      <height>41</height>
      </rect>
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -64,7 +64,7 @@
       <x>20</x>
       <y>40</y>
       <width>211</width>
-      <height>81</height>
+      <height>51</height>
      </rect>
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout">
@@ -83,9 +83,9 @@
    <widget class="QPushButton" name="addEmp">
     <property name="geometry">
      <rect>
-      <x>50</x>
-      <y>320</y>
-      <width>131</width>
+      <x>20</x>
+      <y>200</y>
+      <width>211</width>
       <height>51</height>
      </rect>
     </property>
@@ -96,9 +96,9 @@
    <widget class="QPushButton" name="showCam">
     <property name="geometry">
      <rect>
-      <x>50</x>
-      <y>380</y>
-      <width>131</width>
+      <x>20</x>
+      <y>260</y>
+      <width>211</width>
       <height>51</height>
      </rect>
     </property>
@@ -123,6 +123,45 @@
     </property>
     <property name="text">
      <string/>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="closeCam">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>320</y>
+      <width>101</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Stop</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="backTime">
+    <property name="geometry">
+     <rect>
+      <x>120</x>
+      <y>320</y>
+      <width>111</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Back</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="Screenshot">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>380</y>
+      <width>211</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Screenshot</string>
     </property>
    </widget>
   </widget>
