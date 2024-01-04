@@ -8,10 +8,14 @@ from sklearn.model_selection import train_test_split
 TRAIN_DATA = 'dataset/data_train'
 TRAIN_TEST = 'dataset/data_test'
 
-x_data = []
-y_data = []
+x_train = []
+y_train = []
 
 label_dict = {'tu': [1, 0], 'soi': [0, 1]}
+
+x_test = []
+y_test = []
+
 
 def load_data(directory, data_list):
     for category in os.listdir(directory):
@@ -23,26 +27,26 @@ def load_data(directory, data_list):
             data_list.append((img, label))
     return data_list
 
-x_data = load_data(TRAIN_DATA, x_data)
-x_data = load_data(TRAIN_TEST, x_data)
+x_train = load_data(TRAIN_DATA, x_train)
+x_test = load_data(TRAIN_TEST, x_test)
 
 # Shuffle the data
-np.random.shuffle(x_data)
+np.random.shuffle(x_train)
 
 # Split the data into training and testing sets
-x_train, x_test = train_test_split(x_data, test_size=0.2, random_state=42)
+# x_train, x_test = train_test_split(x_train, test_size=0.2, random_state=42)
 
-# Separate data and labels
+# tach data va labels
 x_train_images, x_train_labels = zip(*x_train)
 x_test_images, x_test_labels = zip(*x_test)
 
-# Convert to NumPy arrays
+# Convert NumPy array
 x_train_images = np.array(x_train_images)
 x_train_labels = np.array(x_train_labels)
 x_test_images = np.array(x_test_images)
 x_test_labels = np.array(x_test_labels)
 
-# Normalize pixel values to be between 0 and 1
+# convert to 0 - 1
 x_train_images = x_train_images / 255.0
 x_test_images = x_test_images / 255.0
 
@@ -70,16 +74,15 @@ model = models.Sequential([
     layers.Dense(2, activation='softmax'),
 ])
 
-# Compile the model
+# Compile model
 model.compile(optimizer='adam',
               loss='categorical_crossentropy',
               metrics=['accuracy'])
 
 model.summary()
-# Train the model
+# Train model
 model.fit(x_train_images, x_train_labels, epochs=10, batch_size=64)
 
-# Save the model
 model.save('model-nonesang.h5')
 
 
