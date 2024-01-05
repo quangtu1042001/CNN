@@ -29,7 +29,7 @@ def load_faces():
         return
 
     for x in users:
-        print(x)
+        # print(x)
         image = face_recognition.load_image_file(folder_path + "/" + str(x[0]) + '.jpg')
         face_encoding = face_recognition.face_encodings(image)
         if(len(face_encoding) > 0):

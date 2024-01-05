@@ -4,23 +4,198 @@ import sys
 from PyQt6.uic import loadUi
 from PyQt6.QtCore import Qt, QThread, pyqtSignal
 from PyQt6.QtGui import QImage, QPixmap
+import numpy as np
 import connect
 import cv2
 import os
+import face_recognition
+from keras import models
+from datetime import datetime
 
 
+conn = connect.connect()
 class Home_w(QMainWindow):
     def __init__(self, stacked_widget):
         super(Home_w, self).__init__()
         loadUi("test.ui", self)
 
+
+
         self.setFixedSize(850, 550)
         # Khi nút "Login" được nhấn, chuyển sang màn hình login
         self.login.clicked.connect(lambda: stacked_widget.setCurrentIndex(1))
-
         self.btnAdd.clicked.connect(lambda :stacked_widget.setCurrentIndex(3))
+        self.atten_dance.clicked.connect(self.atten)
+
+    def atten(self):
+        conn = connect.connect()
+        folder_path = 'img'
+        face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_alt.xml')
+        model = models.load_model('testanti.h5')
+        known_face_encodings = []
+        known_face_names = []
+
+        def load_faces():
+            nonlocal known_face_encodings, known_face_names
+            known_face_encodings = []
+            known_face_names = []
+
+            cur = conn.cursor()
+            cur.execute("SELECT * FROM employees")
+            users = cur.fetchall()
+
+            if(len(users) == 0):
+                return
+
+            for x in users:
+                image = face_recognition.load_image_file(folder_path + "/" + str(x[0]) + '.jpg')
+                face_encoding = face_recognition.face_encodings(image)
+                if(len(face_encoding) > 0):
+                    known_face_encodings.append(face_encoding[0])
+                    known_face_names.append(x[1])
+
+        load_faces()
+
+        cap = cv2.VideoCapture(0)
+        name_res = 'Unknown'
+        while True:
+            ret, frame = cap.read()
+            if not ret:
+                # Đọc frame không thành công, thoát khỏi vòng lặp
+                break
+            gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+            faces = face_cascade.detectMultiScale(gray_frame, scaleFactor=1.1, minNeighbors=5)
+
+            for (x, y, w, h) in faces:
+                if w > 0 and h > 0:
+                    croped = frame[y:y + h, x:x + w]
+                    croped = cv2.resize(croped, (128, 128))
+                    croped = np.expand_dims(croped, axis=0) / 255.0
+                    classes = model.predict(croped, verbose=0)
+                    face_accuracy = classes[0][2]
+
+                    # Lưu ý: Bạn có thể thêm các điều kiện kiểm tra tại đây để xác định
+                    # xem người này có phải là người đã đăng ký không.
+
+                    if face_accuracy > 0.85:
+                        employee_id = self.get_employee_id_by_name(name_res)
+
+                        if employee_id is not None:
+                            attendance_record = self.get_attendance_record(employee_id)
+                            current_time = datetime.now()
+                            # print(attendance_record)
+                            if attendance_record is None or attendance_record[3] > current_time:
+                                # Điểm danh lần đầu hoặc đã điểm danh nhưng chưa checkout
+                                self.check_in(employee_id)
+                            else:
+                                # Đã điểm danh và đã checkout, thêm mới
+                                self.check_in_and_out(employee_id)
 
 
+
+
+
+                            # Hiển thị thông báo khi thêm thành công
+                            QMessageBox.information(self, 'Thông báo',
+                                                    f'Thêm thành công cho nhân viên có ID {employee_id}')
+                            # Dừng camera
+                            cap.release()
+                            cv2.destroyAllWindows()
+
+
+
+                    if np.argmax(classes) != 2:
+                        name = "Invalid"
+                        cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
+                        cv2.putText(frame, name, (x, y - 30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+                    else:
+                        face_locations = face_recognition.face_locations(frame)
+                        face_encodings = face_recognition.face_encodings(frame, face_locations)
+                        face_names = []
+                        for face_encoding in face_encodings:
+                            # See if the face is a match for the known face(s)
+                            matches = face_recognition.compare_faces(known_face_encodings, face_encoding, tolerance=0.5)
+                            name = "Unknown"
+
+                            # If a match was found in known_face_encodings, just use the first one.
+                            # Compare a list of face encodings against a candidate encoding to see if they match.
+                            if True in matches:
+                                first_match_index = matches.index(True)
+                                name = known_face_names[first_match_index]
+
+                            # Or instead, use the known face with the smallest distance to the new face
+                            face_distances = face_recognition.face_distance(known_face_encodings, face_encoding)
+                            best_match_index = np.argmin(face_distances)
+                            if matches[best_match_index]:
+                                name = known_face_names[best_match_index]
+                            face_names.append(name)
+
+                            name_res = name
+                            for (top, right, bottom, left), name in zip(face_locations, face_names):
+                                name_res = name
+                                cv2.rectangle(frame, (left, top), (right, bottom), (0, 255, 0), thickness=2)
+                                cv2.putText(frame, name_res, (left, top - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+                                            (0, 0, 255), 2)
+
+
+                    cv2.putText(frame, f'Accuracy: {face_accuracy:.2%}', (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+
+            cv2.imshow('Face Detection', frame)
+
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
+
+        cap.release()
+        cv2.destroyAllWindows()
+
+    def get_employee_id_by_name(self, employee_name):
+        cur = conn.cursor()
+        cur.execute("SELECT employee_id FROM employees WHERE name = ?", (employee_name,))
+        result = cur.fetchone()
+        if result:
+            return result[0]
+        return None
+    def get_attendance_record(self, employee_id):
+
+        cur = conn.cursor()
+        cur.execute("SELECT TOP 1 * FROM attendance WHERE employee_id = ? ORDER BY attendance_date DESC",
+                    (employee_id,))
+        return cur.fetchone()
+
+    def check_in(self, employee_id):
+        cur = conn.cursor()
+        cur.execute("INSERT INTO attendance (employee_id, check_in_time, attendance_date) VALUES (?, ?, ?)",
+                    (employee_id, datetime.now(), datetime.now().date()))
+        conn.commit()
+
+    def check_in_and_out(self, employee_id):
+        cur = conn.cursor()
+
+        # Kiểm tra xem đã có bản ghi cho ngày hiện tại chưa
+        cur.execute("SELECT * FROM attendance WHERE employee_id = ? AND attendance_date = ?",
+                    (employee_id, datetime.now().date()))
+        existing_record = cur.fetchone()
+        print(existing_record)
+
+        if existing_record:
+            # Đã có bản ghi cho ngày hiện tại, so sánh và cập nhật check_out_time nếu cần
+            if existing_record[3] is None or existing_record[3] < datetime.now():
+                # Thực hiện cập nhật
+                cur.execute("UPDATE attendance SET check_out_time = ? WHERE employee_id = ? AND attendance_date = ?",
+                            (datetime.now(), employee_id, datetime.now().date()))
+                conn.commit()
+                QMessageBox.information(self, 'Thông báo', f'Đã cập nhật check_out cho nhân viên có ID {employee_id}')
+            else:
+                QMessageBox.warning(self, 'Cảnh báo', f'Nhân viên có ID {employee_id} đã check_out trong ngày.')
+        else:
+            # Chưa có bản ghi cho ngày hiện tại, thêm mới
+            cur.execute("INSERT INTO attendance (employee_id, check_in_time, attendance_date) VALUES (?, ?, ?)",
+                        (employee_id, datetime.now(), datetime.now().date()))
+            conn.commit()
+            QMessageBox.information(self, 'Thông báo', f'Đã thêm mới check_in cho nhân viên có ID {employee_id}')
+
+        cur.close()
 
 
 class add_w(QMainWindow):
@@ -168,7 +343,8 @@ class Admin_w(QMainWindow):
                     e.name,
                     e.department,
                     a.check_in_time,
-                    a.check_out_time
+                    a.check_out_time,
+                    a.attendance_time
                 FROM
                     employees e
                 LEFT JOIN
