@@ -2,8 +2,9 @@ from PyQt6 import QtGui, QtWidgets, QtCore, uic
 from PyQt6.QtWidgets import *
 import sys
 from PyQt6.uic import loadUi
-from PyQt6.QtCore import Qt, QThread, pyqtSignal
+from PyQt6.QtCore import Qt, QThread, pyqtSignal,QDate
 from PyQt6.QtGui import QImage, QPixmap
+import pandas as pd
 import numpy as np
 import connect
 import cv2
@@ -279,13 +280,7 @@ class add_w(QMainWindow):
         else:
             QMessageBox.warning(self, 'Warning', 'Vui lòng nhập đầy đủ thông tin')
 
-    # def openCam(self):
-    #     cap = cv2.VideoCapture(0)
-    #     while True :
-    #         OK ,self.frame = self.cap.read()
-    #         self.update()
-    #         if cv2.waitKey(1) & 0xFF == ord('q'):
-    #             break
+
 
 class Login_w(QMainWindow):
     def __init__(self, stacked_widget):
@@ -326,14 +321,26 @@ class Login_w(QMainWindow):
 
 
 class Admin_w(QMainWindow):
-    def __init__(self):
+    def __init__(self,stacked_widget):
         super(Admin_w, self).__init__()
         loadUi("admin.ui", self)
+        self.stacked_widget = stacked_widget
         self.searchData.clicked.connect(self.search)
+        self.caleSearch.selectionChanged.connect(self.search)  # Connect dateChanged signal to search function
+        self.backAdmin.clicked.connect(self.back_admin)
+        self.EpExcel.clicked.connect(self.exportToExcel)
+
+
+
+    def back_admin(self):
+        # Chuyển sang trang Home khi nhấn nút backmain
+        self.stacked_widget.setCurrentIndex(0)  # 0 là index của trang Home trong stacked_widget
 
     def search(self):
         id = self.idSearch.text()
         name = self.nameSearch.text()
+        selected_date = self.caleSearch.selectedDate()
+
         db = connect.connect()
         query = db.cursor()
 
@@ -344,14 +351,14 @@ class Admin_w(QMainWindow):
                     e.department,
                     a.check_in_time,
                     a.check_out_time,
-                    a.attendance_time
+                    a.attendance_date
                 FROM
                     employees e
                 LEFT JOIN
                     attendance a ON e.employee_id = a.employee_id
-            """
+                """
 
-        # Thêm điều kiện WHERE nếu id hoặc name được cung cấp
+        # Thêm điều kiện WHERE nếu id, name hoặc date được cung cấp
         conditions = []
         params = []
 
@@ -365,25 +372,70 @@ class Admin_w(QMainWindow):
             conditions.append("e.name = ?")
             params.append(name)
 
+        if selected_date.isValid():  # Kiểm tra xem ngày đã chọn từ QCalendarWidget có hợp lệ hay không
+            conditions.append("a.attendance_date = ?")
+            params.append(selected_date.toString("yyyy-MM-dd"))
+
         if conditions:
-            sql_query += " WHERE " + " OR ".join(conditions)
+            sql_query += " WHERE " + " AND ".join(conditions)
 
         query.execute(sql_query, tuple(params))
         rows = query.fetchall()
         table_widget = self.findChild(QTableWidget, 'tableData')
 
-        # Đặt dữ liệu vào QTableWidget
-        table_widget.setRowCount(len(rows))
-        table_widget.setColumnCount(len(rows[0]))
+        if rows:
+            # Đặt dữ liệu vào QTableWidget
+            table_widget.setRowCount(len(rows))
+            table_widget.setColumnCount(len(rows[0]))
 
-        for i, row in enumerate(rows):
-            for j, value in enumerate(row):
-                item = QTableWidgetItem(str(value))
-                table_widget.setItem(i, j, item)
+            for i, row in enumerate(rows):
+                for j, value in enumerate(row):
+                    item = QTableWidgetItem(str(value))
+                    table_widget.setItem(i, j, item)
 
-        # Đặt tiêu đề cột
-        column_headers = [column[0] for column in query.description]
-        table_widget.setHorizontalHeaderLabels(column_headers)
+            # Đặt tiêu đề cột
+            column_headers = [column[0] for column in query.description]
+            table_widget.setHorizontalHeaderLabels(column_headers)
+
+
+        else:
+            # Nếu không có dữ liệu, xóa dữ liệu cũ trong QTableWidget
+            table_widget.clearContents()
+            table_widget.setRowCount(0)
+            table_widget.setColumnCount(0)
+
+    def exportToExcel(self):
+        table_widget = self.findChild(QTableWidget, 'tableData')
+
+        if not table_widget.rowCount() or not table_widget.columnCount():
+            return  # Không có dữ liệu hoặc không có cột
+
+        # Lấy dữ liệu từ QTableWidget
+        data = []
+        for row in range(table_widget.rowCount()):
+            row_data = []
+            for column in range(table_widget.columnCount()):
+                item = table_widget.item(row, column)
+                row_data.append(item.text())
+            data.append(row_data)
+
+        # Tạo DataFrame từ dữ liệu
+        df = pd.DataFrame(data)
+
+        # Chọn vị trí lưu tệp Excel
+        excel_path, _ = QtWidgets.QFileDialog.getSaveFileName(self, "Save Excel file", "", "Excel Files (*.xlsx)")
+
+        if excel_path:
+            # Xuất DataFrame vào tệp Excel
+            df.to_excel(excel_path, index=False)
+
+            # Thông báo thành công
+            success_message = f"Data exported to {excel_path}"
+            print(success_message)
+
+            # Thông báo trên giao diện người dùng
+            # QMessageBox.information(self, "Export Successful", success_message, QMessageBox.ButtonRole.AcceptRole)
+            QMessageBox.information(self, 'Success', 'Xuất Excel thành công!')
 
 
 if __name__ == "__main__":
@@ -393,7 +445,7 @@ if __name__ == "__main__":
     add_f = add_w(stacked_widget)
     Login_f = Login_w(stacked_widget)
     Home_f = Home_w(stacked_widget)
-    Admin_f = Admin_w()
+    Admin_f = Admin_w(stacked_widget)
 
 
 

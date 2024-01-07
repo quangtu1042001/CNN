@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>791</width>
+    <width>792</width>
     <height>600</height>
    </rect>
   </property>
@@ -24,8 +24,8 @@
 </string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout_2">
-    <item>
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0">
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
        <widget class="QLabel" name="label">
@@ -39,7 +39,7 @@
       </item>
      </layout>
     </item>
-    <item>
+    <item row="1" column="0">
      <layout class="QHBoxLayout" name="horizontalLayout_2">
       <item>
        <widget class="QLabel" name="label_2">
@@ -53,15 +53,58 @@
       </item>
      </layout>
     </item>
-    <item>
+    <item row="2" column="0">
      <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QCalendarWidget" name="caleSearch">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="cursor">
+         <cursorShape>PointingHandCursor</cursorShape>
+        </property>
+        <property name="dateEditAcceptDelay">
+         <number>1500</number>
+        </property>
+       </widget>
+      </item>
       <item>
        <widget class="QTableWidget" name="tableData"/>
       </item>
       <item>
        <widget class="QPushButton" name="searchData">
+        <property name="cursor">
+         <cursorShape>PointingHandCursor</cursorShape>
+        </property>
         <property name="text">
          <string>Search</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="3" column="0">
+     <layout class="QHBoxLayout" name="horizontalLayout_6">
+      <item>
+       <widget class="QPushButton" name="backAdmin">
+        <property name="cursor">
+         <cursorShape>PointingHandCursor</cursorShape>
+        </property>
+        <property name="text">
+         <string>Back</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="EpExcel">
+        <property name="cursor">
+         <cursorShape>PointingHandCursor</cursorShape>
+        </property>
+        <property name="text">
+         <string>Excel</string>
         </property>
        </widget>
       </item>
@@ -74,7 +117,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>791</width>
+     <width>792</width>
      <height>21</height>
     </rect>
    </property>
