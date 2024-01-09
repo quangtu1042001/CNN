@@ -13,14 +13,17 @@
   <property name="windowTitle">
    <string>add</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">background: rgb(107, 148, 205)</string>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QWidget" name="horizontalLayoutWidget_3">
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>150</y>
+      <y>170</y>
       <width>211</width>
-      <height>41</height>
+      <height>51</height>
      </rect>
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -40,7 +43,7 @@
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>100</y>
+      <y>110</y>
       <width>211</width>
       <height>41</height>
      </rect>
@@ -83,9 +86,9 @@
    <widget class="QPushButton" name="addEmp">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>200</y>
-      <width>211</width>
+      <x>60</x>
+      <y>390</y>
+      <width>171</width>
       <height>51</height>
      </rect>
     </property>
@@ -96,9 +99,9 @@
    <widget class="QPushButton" name="showCam">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>260</y>
-      <width>211</width>
+      <x>60</x>
+      <y>230</y>
+      <width>171</width>
       <height>51</height>
      </rect>
     </property>
@@ -128,22 +131,22 @@
    <widget class="QPushButton" name="closeCam">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>320</y>
-      <width>101</width>
+      <x>60</x>
+      <y>470</y>
+      <width>91</width>
       <height>51</height>
      </rect>
     </property>
     <property name="text">
-     <string>Stop</string>
+     <string>Stop Cam</string>
     </property>
    </widget>
    <widget class="QPushButton" name="backTime">
     <property name="geometry">
      <rect>
-      <x>120</x>
-      <y>320</y>
-      <width>111</width>
+      <x>140</x>
+      <y>470</y>
+      <width>91</width>
       <height>51</height>
      </rect>
     </property>
@@ -154,14 +157,79 @@
    <widget class="QPushButton" name="Screenshot">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>380</y>
-      <width>211</width>
+      <x>60</x>
+      <y>310</y>
+      <width>171</width>
       <height>51</height>
      </rect>
     </property>
     <property name="text">
      <string>Screenshot</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_4">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>250</y>
+      <width>31</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Step 2</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_5">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>10</y>
+      <width>221</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Step 1 : Điền đầy đủ thông tin</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_6">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>410</y>
+      <width>31</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Step 4</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_8">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>330</y>
+      <width>31</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Step 3</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_9">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>490</y>
+      <width>31</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Step 5</string>
     </property>
    </widget>
   </widget>
@@ -177,6 +245,8 @@
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
- <resources/>
+ <resources>
+  <include location="C:/Users/LENOVO/Desktop/icon.qrc"/>
+ </resources>
  <connections/>
 </ui>

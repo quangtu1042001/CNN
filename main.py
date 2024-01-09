@@ -28,7 +28,14 @@ class Home_w(QMainWindow):
         self.btnAdd.clicked.connect(lambda :stacked_widget.setCurrentIndex(3))
         self.atten_dance.clicked.connect(self.atten)
 
+
     def atten(self):
+        threshold_frames = 70
+        invalid_count = 0
+
+
+
+
         conn = connect.connect()
         folder_path = 'img'
         face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_alt.xml')
@@ -50,6 +57,7 @@ class Home_w(QMainWindow):
 
             for x in users:
                 image = face_recognition.load_image_file(folder_path + "/" + str(x[0]) + '.jpg')
+                print(x[0])
                 face_encoding = face_recognition.face_encodings(image)
                 if(len(face_encoding) > 0):
                     known_face_encodings.append(face_encoding[0])
@@ -76,17 +84,14 @@ class Home_w(QMainWindow):
                     classes = model.predict(croped, verbose=0)
                     face_accuracy = classes[0][2]
 
-                    # Lưu ý: Bạn có thể thêm các điều kiện kiểm tra tại đây để xác định
-                    # xem người này có phải là người đã đăng ký không.
-
-                    if face_accuracy > 0.85:
+                    if face_accuracy > 0.95:
                         employee_id = self.get_employee_id_by_name(name_res)
 
                         if employee_id is not None:
                             attendance_record = self.get_attendance_record(employee_id)
                             current_time = datetime.now()
                             # print(attendance_record)
-                            if attendance_record is None or attendance_record[3] > current_time:
+                            if attendance_record is None or (attendance_record[3] is not None and attendance_record[3] > current_time):
                                 # Điểm danh lần đầu hoặc đã điểm danh nhưng chưa checkout
                                 self.check_in(employee_id)
                             else:
@@ -107,9 +112,22 @@ class Home_w(QMainWindow):
 
 
                     if np.argmax(classes) != 2:
-                        name = "Invalid"
+
+                        name = "Fake"
                         cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
                         cv2.putText(frame, name, (x, y - 30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+                        if name == "Fake":
+                            invalid_count += 1
+                            # Kiểm tra nếu số lượng khung hình liên tiếp có tên "Invalid" đạt ngưỡng
+                            if invalid_count >= threshold_frames:
+                                print("")
+                                QMessageBox.information(self, 'Thông báo',
+                                                        f'Bạn đang vi phạm. Vui lòng sử dụng mặt thật.')
+                                # Dừng camera
+                                cap.release()
+                                cv2.destroyAllWindows()
+                                break
+
                     else:
                         face_locations = face_recognition.face_locations(frame)
                         face_encodings = face_recognition.face_encodings(frame, face_locations)
@@ -138,6 +156,8 @@ class Home_w(QMainWindow):
                                 cv2.rectangle(frame, (left, top), (right, bottom), (0, 255, 0), thickness=2)
                                 cv2.putText(frame, name_res, (left, top - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
                                             (0, 0, 255), 2)
+
+
 
 
                     cv2.putText(frame, f'Accuracy: {face_accuracy:.2%}', (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
@@ -396,6 +416,11 @@ class Admin_w(QMainWindow):
             # Đặt tiêu đề cột
             column_headers = [column[0] for column in query.description]
             table_widget.setHorizontalHeaderLabels(column_headers)
+
+            header = table_widget.horizontalHeader()
+            header.setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+
+
 
 
         else:
