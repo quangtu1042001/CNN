@@ -119,7 +119,7 @@ color:white
     <property name="geometry">
      <rect>
       <x>330</x>
-      <y>120</y>
+      <y>100</y>
       <width>221</width>
       <height>51</height>
      </rect>
@@ -139,6 +139,32 @@ color:white
     </property>
     <property name="text">
      <string>VisageVerify</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_3">
+    <property name="geometry">
+     <rect>
+      <x>253</x>
+      <y>160</y>
+      <width>404</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Times New Roman</family>
+      <pointsize>30</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+      <stylestrategy>PreferDefault</stylestrategy>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color : white
+</string>
+    </property>
+    <property name="text">
+     <string>ĐỒ ÁN TỐT NGHIỆP</string>
     </property>
    </widget>
   </widget>

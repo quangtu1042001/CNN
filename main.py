@@ -57,11 +57,12 @@ class Home_w(QMainWindow):
 
             for x in users:
                 image = face_recognition.load_image_file(folder_path + "/" + str(x[0]) + '.jpg')
-                print(x[0])
+                # print(x[0])
                 face_encoding = face_recognition.face_encodings(image)
                 if(len(face_encoding) > 0):
                     known_face_encodings.append(face_encoding[0])
                     known_face_names.append(x[1])
+                    print(known_face_encodings)
 
         load_faces()
 
@@ -83,6 +84,7 @@ class Home_w(QMainWindow):
                     croped = np.expand_dims(croped, axis=0) / 255.0
                     classes = model.predict(croped, verbose=0)
                     face_accuracy = classes[0][2]
+                    print(classes[0][2])
 
                     if face_accuracy > 0.95:
                         employee_id = self.get_employee_id_by_name(name_res)
@@ -98,13 +100,6 @@ class Home_w(QMainWindow):
                                 # Đã điểm danh và đã checkout, thêm mới
                                 self.check_in_and_out(employee_id)
 
-
-
-
-
-                            # Hiển thị thông báo khi thêm thành công
-                            QMessageBox.information(self, 'Thông báo',
-                                                    f'Thêm thành công cho nhân viên có ID {employee_id}')
                             # Dừng camera
                             cap.release()
                             cv2.destroyAllWindows()
@@ -127,14 +122,15 @@ class Home_w(QMainWindow):
                                 cap.release()
                                 cv2.destroyAllWindows()
                                 break
-
                     else:
                         face_locations = face_recognition.face_locations(frame)
                         face_encodings = face_recognition.face_encodings(frame, face_locations)
                         face_names = []
                         for face_encoding in face_encodings:
                             # See if the face is a match for the known face(s)
-                            matches = face_recognition.compare_faces(known_face_encodings, face_encoding, tolerance=0.5)
+                            # return boolean
+                            matches = face_recognition.compare_faces(known_face_encodings, face_encoding, tolerance=0.3)
+
                             name = "Unknown"
 
                             # If a match was found in known_face_encodings, just use the first one.
@@ -144,6 +140,7 @@ class Home_w(QMainWindow):
                                 name = known_face_names[first_match_index]
 
                             # Or instead, use the known face with the smallest distance to the new face
+                            # một giá trị số thực, biểu thị khoảng cách Euclidean giữa hai khuôn mặt.
                             face_distances = face_recognition.face_distance(known_face_encodings, face_encoding)
                             best_match_index = np.argmin(face_distances)
                             if matches[best_match_index]:
@@ -160,7 +157,7 @@ class Home_w(QMainWindow):
 
 
 
-                    cv2.putText(frame, f'Accuracy: {face_accuracy:.2%}', (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+                    # cv2.putText(frame, f'Accuracy: {face_accuracy:.2%}', (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
             cv2.imshow('Face Detection', frame)
 
@@ -197,7 +194,7 @@ class Home_w(QMainWindow):
         cur.execute("SELECT * FROM attendance WHERE employee_id = ? AND attendance_date = ?",
                     (employee_id, datetime.now().date()))
         existing_record = cur.fetchone()
-        print(existing_record)
+        # print(existing_record)
 
         if existing_record:
             # Đã có bản ghi cho ngày hiện tại, so sánh và cập nhật check_out_time nếu cần
