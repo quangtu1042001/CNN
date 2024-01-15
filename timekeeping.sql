@@ -17,6 +17,7 @@ CREATE TABLE attendance (
     check_in_time DATETIME,
     check_out_time DATETIME,
     attendance_date DATE
+	FOREIGN KEY (employee_id) REFERENCES employees(employee_id)
 );
 
 

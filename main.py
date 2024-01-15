@@ -161,13 +161,13 @@ class Home_w(QMainWindow):
 
 
 
-    def get_employee_id_by_name(self, employee_name):
-        cur = conn.cursor()
-        cur.execute("SELECT employee_id FROM employees WHERE name = ?", (employee_name,))
-        result = cur.fetchone()
-        if result:
-            return result[0]
-        return None
+    # def get_employee_id_by_name(self, employee_name):
+    #     cur = conn.cursor()
+    #     cur.execute("SELECT employee_id FROM employees WHERE name = ?", (employee_name,))
+    #     result = cur.fetchone()
+    #     if result:
+    #         return result[0]
+    #     return None
 
     def get_attendance_record(self, employee_id):
 
@@ -182,7 +182,7 @@ class Home_w(QMainWindow):
                     (employee_id, datetime.now(), datetime.now().date()))
         conn.commit()
         QMessageBox.information(self, 'Thông báo',
-                                f'Đã checkin cho nhân viên có ID {employee_id} và {username}')
+                                f'Đã checkin cho nhân viên có ID {employee_id} có tên là {username}')
 
     def check_in_and_out(self, employee_id,username):
         cur = conn.cursor()
@@ -200,7 +200,7 @@ class Home_w(QMainWindow):
                 cur.execute("UPDATE attendance SET check_out_time = ? WHERE employee_id = ? AND attendance_date = ?",
                             (datetime.now(), employee_id, datetime.now().date()))
                 conn.commit()
-                QMessageBox.information(self, 'Thông báo', f'Đã cập nhật check_out cho nhân viên có ID {employee_id} và {username}')
+                QMessageBox.information(self, 'Thông báo', f'Đã cập nhật check_out cho nhân viên có ID {employee_id} có tên {username}')
             else:
                 QMessageBox.warning(self, 'Cảnh báo', f'Nhân viên có ID {employee_id} và {username}đã check_out trong ngày.')
         else:
@@ -208,7 +208,7 @@ class Home_w(QMainWindow):
             cur.execute("INSERT INTO attendance (employee_id, check_in_time, attendance_date) VALUES (?, ?, ?)",
                         (employee_id, datetime.now(), datetime.now().date()))
             conn.commit()
-            QMessageBox.information(self, 'Thông báo', f'Đã thêm mới check_in cho nhân viên có ID {employee_id}')
+            QMessageBox.information(self, 'Thông báo', f'Đã thêm mới check_in cho nhân viên có ID {employee_id} có tên {username}')
 
         cur.close()
 
