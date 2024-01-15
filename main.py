@@ -57,11 +57,12 @@ class Home_w(QMainWindow):
                 if (len(face_encoding) > 0):
                     known_face_encodings.append(face_encoding[0])
                     known_face_names.append({'id': x[0], 'name': x[1]})
+                    print(known_face_names)
+
 
         load_faces()
 
         cap = cv2.VideoCapture(0)
-
         employee_id = None
         while True:
             ret, frame = cap.read()
@@ -144,7 +145,7 @@ class Home_w(QMainWindow):
                                         self.check_in_and_out(employee_id,username)
                                         cap.release()
                                         cv2.destroyAllWindows()
-                            for (top, right, bottom, left), name in zip(face_locations, face_names):
+                            for (top, right, bottom , left), name in zip(face_locations, face_names):
                                 print(name)
                                 text_to_display = f' Name: {name}'
                                 cv2.rectangle(frame, (left, top), (right, bottom), (0, 255, 0), thickness=2)
@@ -323,6 +324,8 @@ class Login_w(QMainWindow):
             # Kiểm tra kết quả
             if result:
                 QMessageBox.information(self, "Thành công", "Đăng nhập thành công")
+                self.user.clear()
+                self.password.clear()
                 # Chuyển sang trang Admin khi đăng nhập thành công
                 self.stacked_widget.setCurrentIndex(2)  # (2 là index của trang Admin trong stacked_widget)
             else:
@@ -344,6 +347,7 @@ class Admin_w(QMainWindow):
     def back_admin(self):
         # Chuyển sang trang Home khi nhấn nút backmain
         self.stacked_widget.setCurrentIndex(0)  # 0 là index của trang Home trong stacked_widget
+
 
     def search(self):
         id = self.idSearch.text()
