@@ -1,18 +1,17 @@
 import cv2
 # from model import getModel
-from keras import models
 import numpy as np
 # import mysql.connector
 import face_recognition
+from model import getModel
 import connect
 
 conn = connect.connect()
 folder_path = 'img'
 # Class names: ['face', 'mask', 'phone', 'photo']
-face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_alt.xml')
-# model = getModel('antiSpoofing.h5')
+face_cascade = cv2.CascadeClassifier("haarcascades/" + 'haarcascade_frontalface_alt.xml')
+model = getModel('vgg19_new_dataset_adam_antiSpoofing.h5')
 
-model = models.load_model('testanti.h5')
 known_face_encodings = []
 known_face_names = []
 
@@ -50,22 +49,15 @@ while True:
     faces = face_cascade.detectMultiScale(gray_frame, scaleFactor=1.1, minNeighbors=5)
 
     for (x, y, w, h) in faces:
-        # croped = frame[x:x+w,y:y+h]
-        # croped = cv2.resize(croped, (128,128))
-        # classes = model.predict(np.expand_dims(croped, axis=0), verbose=0)
         if w > 0 and h > 0:
-            croped = frame[y:y + h, x:x + w]
-            croped = cv2.resize(croped, (128, 128))
+            # croped = frame[y:y + h, x:x + w]
+            # croped = cv2.resize(croped, (128, 128))
             # Chuyển đổi ảnh sang định dạng phù hợp cho model.predict
-            croped = np.expand_dims(croped, axis=0) / 255.0
-            classes = model.predict(croped, verbose=0)
-            face_accuracy = classes[0][2]
-            accuracy_text = f'Accuracy: {face_accuracy:.2%}'
-            cv2.putText(frame, accuracy_text, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-
+            predFrame = np.expand_dims(cv2.cvtColor(cv2.resize(frame, (128,128)), cv2.COLOR_BGR2RGB), axis=0) / 255
+            classes = model.predict(predFrame, verbose=0)
 
         # fake face
-        if np.argmax(classes) != 2:
+        if np.argmax(classes) != 0:
             name = "Invalid"
             cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
             cv2.putText(frame, name, (x, y - 30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)

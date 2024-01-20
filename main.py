@@ -12,6 +12,7 @@ import os
 import face_recognition
 from keras import models
 from datetime import datetime
+from model import getModel
 
 conn = connect.connect()
 
@@ -33,8 +34,8 @@ class Home_w(QMainWindow):
 
         conn = connect.connect()
         folder_path = 'img'
-        face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_alt.xml')
-        model = models.load_model('testanti.h5')
+        face_cascade = cv2.CascadeClassifier("haarcascades/" + 'haarcascade_frontalface_alt.xml')
+        model = models.load_model('vgg19_new_dataset_adam_antiSpoofing.h5')
         known_face_encodings = []
         known_face_names = []
 
@@ -75,17 +76,15 @@ class Home_w(QMainWindow):
 
             for (x, y, w, h) in faces:
                 if w > 0 and h > 0:
-                    croped = frame[y:y + h, x:x + w]
-                    croped = cv2.resize(croped, (128, 128))
-                    croped = np.expand_dims(croped, axis=0) / 255.0
-                    classes = model.predict(croped, verbose=0)
-                    face_accuracy = classes[0][2]
+                    predFrame = np.expand_dims(cv2.cvtColor(cv2.resize(frame, (128,128)), cv2.COLOR_BGR2RGB), axis=0) / 255
+                    classes = model.predict(predFrame, verbose=0)
+                    face_accuracy = classes[0][0]
                     print(classes)
 
                     # # employee_id = self.get_employee_id_by_name({'name': name_res})
                     # print(f'Known Face Names: {known_face_names}')
 
-                    if np.argmax(classes) != 2:
+                    if np.argmax(classes) != 0:
                         name = "Fake"
                         cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
                         cv2.putText(frame, name, (x, y - 30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
@@ -111,7 +110,7 @@ class Home_w(QMainWindow):
                             # See if the face is a match for the known face(s)
                             # return boolean
                                 matches = face_recognition.compare_faces(known_face_encodings, face_encoding,
-                                                                     tolerance=0.3)
+                                                                     tolerance=0.4)
                             # print(matches)
                                 name = "Unknown"
 
