@@ -29,7 +29,7 @@ class Home_w(QMainWindow):
         self.atten_dance.clicked.connect(self.atten)
 
     def atten(self):
-        threshold_frames = 70
+        threshold_frames = 1000
         invalid_count = 0
 
         conn = connect.connect()
@@ -100,50 +100,39 @@ class Home_w(QMainWindow):
                                 cv2.destroyAllWindows()
                                 break
                     else:
-                        if face_accuracy > 0.9:
+                        if face_accuracy > 0.85:
                             print('check')
                             face_locations = face_recognition.face_locations(frame)
                             face_encodings = face_recognition.face_encodings(frame, face_locations)
                             print(face_encodings)
                             face_names = []
                             for face_encoding in face_encodings:
-                            # See if the face is a match for the known face(s)
-                            # return boolean
+                                # See if the face is a match for the known face(s)
+                                # return boolean
                                 matches = face_recognition.compare_faces(known_face_encodings, face_encoding,
                                                                      tolerance=0.4)
-                            # print(matches)
                                 name = "Unknown"
-
-                            # If a match was found in known_face_encodings, just use the first one.
-                            # Compare a list of face encodings against a candidate encoding to see if they match.
+                                employee_id = None
+                                username = None
+                                best_match_index = None
+                                # Nếu có ít nhất một khuôn mặt khớp, tính toán face_distances và best_match_index
                                 if True in matches:
-                                    first_match_index = matches.index(True)
-                                    name = known_face_names[first_match_index]
+                                    face_distances = face_recognition.face_distance(known_face_encodings, face_encoding)
+                                    best_match_index = np.argmin(face_distances)
+                                    name = known_face_names[best_match_index]
                                     employee_id = name['id']
                                     username = name['name']
+                                    print(face_distances)
 
-
-                            # Or instead, use the known face with the smallest distance to the new face
-                            # một giá trị số thực, biểu thị khoảng cách Euclidean giữa hai khuôn mặt.
-                                face_distances = face_recognition.face_distance(known_face_encodings, face_encoding)
-                                best_match_index = np.argmin(face_distances)
-                            # print(best_match_index)
-                                print(face_distances)
+                                if best_match_index is not None and matches[best_match_index]:
+                                    # attendance_record = self.get_attendance_record(employee_id)
+                                    # current_time = datetime.now()
+                                    # if attendance_record is None or (
+                                    #         attendance_record[3] is not None and attendance_record[3] > current_time):
+                                    self.check_in_and_out(employee_id,username)
+                                    cap.release()
+                                    cv2.destroyAllWindows()
                                 face_names.append(name)
-
-                                if matches[best_match_index]:
-                                    attendance_record = self.get_attendance_record(employee_id)
-                                    current_time = datetime.now()
-
-                                    if attendance_record is None or (
-                                            attendance_record[3] is not None and attendance_record[3] > current_time):
-                                        self.check_in(employee_id,username)
-                                        cap.release()
-                                        cv2.destroyAllWindows()
-                                    else:
-                                        self.check_in_and_out(employee_id,username)
-                                        cap.release()
-                                        cv2.destroyAllWindows()
                             for (top, right, bottom , left), name in zip(face_locations, face_names):
                                 print(name)
                                 text_to_display = f' Name: {name}'
@@ -168,20 +157,20 @@ class Home_w(QMainWindow):
     #         return result[0]
     #     return None
 
-    def get_attendance_record(self, employee_id):
+    # def get_attendance_record(self, employee_id):
+    #
+    #     cur = conn.cursor()
+    #     cur.execute("SELECT TOP 1 * FROM attendance WHERE employee_id = ? ORDER BY attendance_date DESC",
+    #                 (employee_id,))
+    #     return cur.fetchone()
 
-        cur = conn.cursor()
-        cur.execute("SELECT TOP 1 * FROM attendance WHERE employee_id = ? ORDER BY attendance_date DESC",
-                    (employee_id,))
-        return cur.fetchone()
-
-    def check_in(self, employee_id,username):
-        cur = conn.cursor()
-        cur.execute("INSERT INTO attendance (employee_id, check_in_time, attendance_date) VALUES (?, ?, ?)",
-                    (employee_id, datetime.now(), datetime.now().date()))
-        conn.commit()
-        QMessageBox.information(self, 'Thông báo',
-                                f'Đã checkin cho nhân viên có ID {employee_id} có tên là {username}')
+    # def check_in(self, employee_id,username):
+    #     cur = conn.cursor()
+    #     cur.execute("INSERT INTO attendance (employee_id, check_in_time, attendance_date) VALUES (?, ?, ?)",
+    #                 (employee_id, datetime.now(), datetime.now().date()))
+    #     conn.commit()
+    #     QMessageBox.information(self, 'Thông báo',
+    #                             f'Đã checkin cho nhân viên có ID {employee_id} có tên là {username}')
 
     def check_in_and_out(self, employee_id,username):
         cur = conn.cursor()

@@ -12,10 +12,10 @@ def getModel(path):
       layer.trainable = False
 
   #Use the generated model
-  output_vgg16_conv = model_vgg19_conv(input)
+  output_vgg19_conv = model_vgg19_conv(input)
 
   #Add the fully-connected layers
-  x = Flatten(name='flatten')(output_vgg16_conv)
+  x = Flatten(name='flatten')(output_vgg19_conv)
   x = Dense(4096, activation='relu', name='fc1')(x)
   x = Dense(4096, activation='relu', name='fc2')(x)
   x = Dense(4, activation='softmax', name='predictions')(x)
