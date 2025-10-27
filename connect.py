@@ -2,7 +2,7 @@ import pyodbc
 
 
 def connect():
-    connectionString = f'DRIVER={{ODBC Driver 18 for SQL Server}};SERVER=QUANGTUKUTEKEKE\SQLEXPRESS;DATABASE=timekeeping;UID=sa;PWD=123;TrustServerCertificate=yes'
+    connectionString = f'DRIVER={{ODBC Driver 17 for SQL Server}};SERVER=emTuXM;DATABASE=timekeeping;UID=sa;PWD=123;TrustServerCertificate=yes'
     try:
         conn = pyodbc.connect(connectionString)
         return conn

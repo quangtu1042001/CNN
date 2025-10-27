@@ -29,13 +29,13 @@ class Home_w(QMainWindow):
         self.atten_dance.clicked.connect(self.atten)
 
     def atten(self):
-        threshold_frames = 1000
+        threshold_frames = 300
         invalid_count = 0
 
-        conn = connect.connect()
+        # conn = connect.connect()
         folder_path = 'img'
         face_cascade = cv2.CascadeClassifier("haarcascades/" + 'haarcascade_frontalface_alt.xml')
-        model = models.load_model('vgg19_new_dataset_adam_antiSpoofing.h5')
+        model = models.load_model('vgg19_new_dataset_adam_antiSpoofing1.h5')
         known_face_encodings = []
         known_face_names = []
 
